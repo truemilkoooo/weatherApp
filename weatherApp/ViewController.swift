@@ -55,14 +55,13 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         guard let currentLocation = currentLocation else {
             return
         }
-        let long = currentLocation.coordinate.longitude
-        let lat = currentLocation.coordinate.latitude
+        
         let headers = [
             "X-RapidAPI-Key": "f37dce2c83msh4fd32a0a35fd2ddp103272jsn6a37cade97f3",
             "X-RapidAPI-Host": "foreca-weather.p.rapidapi.com"
         ]
 
-        let request = NSMutableURLRequest(url: NSURL(string: "https://foreca-weather.p.rapidapi.com/location/search/\(lat),\(long)")! as URL,
+        let request = NSMutableURLRequest(url: NSURL(string: "https://foreca-weather.p.rapidapi.com/location/search/mumbai?lang=en&country=in")! as URL,
                                                 cachePolicy: .useProtocolCachePolicy,
                                             timeoutInterval: 10.0)
         request.httpMethod = "GET"
