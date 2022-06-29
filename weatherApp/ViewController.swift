@@ -7,6 +7,7 @@
 
 import UIKit
 import CoreLocation
+import Foundation
 
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, CLLocationManagerDelegate {
     
@@ -56,33 +57,44 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         }
         let long = currentLocation.coordinate.longitude
         let lat = currentLocation.coordinate.latitude
-        
-        let url = "https://api.gismeteo.net/v2/weather/current/\(lat)&\(long)"
+        let headers = [
+            "X-RapidAPI-Key": "f37dce2c83msh4fd32a0a35fd2ddp103272jsn6a37cade97f3",
+            "X-RapidAPI-Host": "foreca-weather.p.rapidapi.com"
+        ]
 
-        URLSession.shared.dataTask(with: URL(string: url)!, completionHandler: { data, response, error in
-            //validation
-            guard let data = data, error == nil else {
-                print ("Something went wrong")
+        let request = NSMutableURLRequest(url: NSURL(string: "https://foreca-weather.p.rapidapi.com/location/search/\(lat),\(long)")! as URL,
+                                                cachePolicy: .useProtocolCachePolicy,
+                                            timeoutInterval: 10.0)
+        request.httpMethod = "GET"
+        request.allHTTPHeaderFields = headers
+
+        let session = URLSession.shared
+        let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
+            guard let data = data, error == nil else{
+                print ("smomething went wrong")
                 return
             }
-            
-            //convert data to model
-            
             var json: WeatherResponse?
             do {
                 json = try JSONDecoder().decode(WeatherResponse.self, from: data)
             }
             catch {
-                print ("error: \(error)")
+                print("error: \(error)")
             }
-            
             guard let result = json else {
                 return
             }
-            print (result.currently.summary)
-            //update user interface
+            let entries = result.daily.data
+            self.models.append(contentsOf: entries)
+            DispatchQueue.main.async {
+                self.table.reloadData()
+            }
+        
         }).resume()
-    }
+        }
+        
+        
+    
     
     //table
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
